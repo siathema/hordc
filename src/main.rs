@@ -1,23 +1,23 @@
-mod map;
-mod map_builder;
 mod camera;
 mod components;
+mod map;
+mod map_builder;
 mod spawner;
 mod systems;
 
 mod prelude {
     pub use bracket_lib::prelude::*;
-    pub use legion::*;
-    pub use legion::world::SubWorld;
     pub use legion::systems::CommandBuffer;
+    pub use legion::world::SubWorld;
+    pub use legion::*;
     pub const SCREEN_WIDTH: i32 = 60;
     pub const SCREEN_HEIGHT: i32 = 32;
     pub const DISPLAY_WIDTH: i32 = SCREEN_WIDTH / 2;
     pub const DISPLAY_HEIGHT: i32 = SCREEN_HEIGHT / 2;
-    pub use crate::map::*;
-    pub use crate::map_builder::*;
     pub use crate::camera::*;
     pub use crate::components::*;
+    pub use crate::map::*;
+    pub use crate::map_builder::*;
     pub use crate::spawner::*;
     pub use crate::systems::*;
 }
@@ -39,7 +39,7 @@ impl State {
         spawn_player(&mut ecs, map_builder.player_start);
         resources.insert(map_builder.map);
         resources.insert(Camera::new(map_builder.player_start));
-        Self { 
+        Self {
             ecs,
             resources,
             systems: build_scheduler(),
@@ -48,14 +48,15 @@ impl State {
 }
 
 impl GameState for State {
-   fn tick(&mut self, ctx: &mut BTerm) {
-       ctx.set_active_console(0);
-       ctx.cls();
-       ctx.set_active_console(1);
-       ctx.cls();
-       self.resources.insert(ctx.key);
-       self.systems.execute(&mut self.ecs, &mut self.resources);
-   }
+    fn tick(&mut self, ctx: &mut BTerm) {
+        ctx.set_active_console(0);
+        ctx.cls();
+        ctx.set_active_console(1);
+        ctx.cls();
+        self.resources.insert(ctx.key);
+        self.systems.execute(&mut self.ecs, &mut self.resources);
+        render_draw_buffer(ctx).expect("Render error");
+    }
 }
 
 fn main() -> BError {
